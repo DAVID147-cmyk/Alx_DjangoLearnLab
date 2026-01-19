@@ -1,0 +1,45 @@
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    publication_year = models.IntegerField()
+
+    def __str__(self):
+        return self.title
+
+
+class Library(models.Model):
+    name = models.CharField(max_length=200)
+    books = models.ManyToManyField(Book)
+
+    def __str__(self):
+        return self.name
+from django.urls import path
+from .views import list_books, LibraryDetailView
+
+urlpatterns = [
+    path('books/', list_books, name='list_books'),
+    path('libraries/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),
+]<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List of Books</title>
+</head>
+<body>
+    <h1>Books Available:</h1>
+    <ul>
+        {% for book in books %}
+        <li>{{ book.title }} by {{ book.author.name }}</li>
+        {% empty %}
+        <li>No books found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
