@@ -1,0 +1,84 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import LoginView, LogoutView
+
+
+# Login View (built-in)
+class CustomLoginView(LoginView):
+    template_name = 'relationship_app/login.html'
+
+
+# Logout View (built-in)
+class CustomLogoutView(LogoutView):
+    template_name = 'relationship_app/logout.html'
+
+
+# Registration View
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'relationship_app/register.html', {
+        'form': form
+    })from django.urls import path
+from .views import register, CustomLoginView, CustomLogoutView
+
+urlpatterns = [
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', CustomLogoutView.as_view(), name='logout'),
+    path('register/', register, name='register'),
+]relationship_app/
+└── templates/
+    └── relationship_app/
+        ├── login.html
+        ├── logout.html
+        └── register.html<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+
+    <a href="{% url 'register' %}">Register</a>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logout</title>
+</head>
+<body>
+    <h1>You have been logged out</h1>
+    <a href="{% url 'login' %}">Login again</a>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+    <h1>Register</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
